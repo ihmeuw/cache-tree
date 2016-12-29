@@ -9,6 +9,19 @@ to be fetched. CacheTree also implements a Least Recently
 Used cache replacement algorithm to limit the amount of 
 memory used by the cache.
 
+## Use
+
+Create a new cacheTree with the `new` operator. The constructor takes
+as the first argument an array of strings. The order of the array
+determines the hierarchy of the tree, the first element being the 
+top level, and the last element being at the bottom. A second optional
+argument is a number (positive integer) that gives the maximum number of
+objects to be stored in the cache before evicting data.
+
+```javascript
+const cache = new CacheTree(['level_1', 'level_2', ..., 'level_n']);
+```
+
 ## API
 
 Method | Arguments | Return | Description
