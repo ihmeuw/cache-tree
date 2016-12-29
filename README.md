@@ -22,6 +22,15 @@ objects to be stored in the cache before evicting data.
 const cache = new CacheTree(['level_1', 'level_2', ..., 'level_n']);
 ```
 
+## LRU algorithm
+
+CacheTree implements a Least Recently Used cache replacement algorithm.
+As data is added to the cache, a linked list keeps the order of new data
+and recently accessed data. New and recently used data is placed in the 
+front of the list, while unused cached data works its way towards the 
+end of the list. When the cache reaches it's `maxSize`, old data is 
+removed from the list and cache.
+
 ## API
 
 Method | Arguments | Return | Description
