@@ -1,4 +1,4 @@
-# CacheTree.js
+# cachetree.js
 
 CacheTree is a class for storing client-side data objects 
 in a nested object structure. Data can be easily retrieved 
@@ -23,6 +23,11 @@ objects to be stored in the cache before evicting data.
 const cache = new CacheTree(['level_1', 'level_2', ..., 'level_n']);
 ```
 
+## Tests
+
+There are tests for each method in the API. Please see the tests for 
+descriptions and expected behavior.
+
 ## LRU algorithm
 
 CacheTree implements a Least Recently Used cache replacement algorithm.
@@ -36,10 +41,10 @@ removed from the list and cache.
 
 Method | Arguments | Return | Description
 --- | :---: | :---: | ---
-`get` | filter | object | desc
-`set` | data | none | desc
+`get` | filter[object] | object | desc
+`set` | data[object] | none | desc
 `cloneCache` | none | object | desc
-`has` | filter | boolean | desc
-`getDiff` | paramFilter | object | desc
+`has` | filter[object] | boolean | desc
+`getDiff` | paramFilter[object] | object | desc
 `clearCache` | none | none | desc
 `getSize` | none | number | desc
