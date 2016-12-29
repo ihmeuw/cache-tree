@@ -1,0 +1,21 @@
+{
+  "name": "cache-tree",
+  "version": "0.1.0",
+  "description": "A class for storing client-side data for reuse with an LRU algorithm.",
+  "main": "cachetree.js",
+  "scripts": {
+    "test": "mocha --require babel-polyfill --compilers js:babel-register"
+  },
+  "author": "Aaron C Keel",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-env": "^1.1.4",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.3"
+  }
+}
