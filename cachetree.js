@@ -58,9 +58,11 @@ export default class CacheTree {
 
       return castArray(cleanData);
     } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
-      if (!every(filter[path[0]], (item) => cache.hasOwnProperty(item))) {
-        return [];
-      }
+      forEach(filter[path[0]], (item) => {
+        if (!cache.hasOwnProperty(item)) {
+          console.log(`missing parameter: ${path[0]}: ${item}`);
+        }
+      });
 
       const trimmedCache = pick(cache, filter[path[0]]);
 
