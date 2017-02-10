@@ -92,6 +92,18 @@ describe('CacheTree', () => {
         mockData[4],
       ]);
     });
+
+    // get data not in cache?
+    it('will try to get data not in the cache', () => {
+      const multilineFilter = { age: 1, sex: 1, estimate: 1, location: [345, 457, 100] };
+      expect(cache.get(multilineFilter))
+        .to.deep.equal([
+        mockData[0],
+        mockData[1],
+        mockData[3],
+        mockData[4],
+      ]);
+    });
   });
 
   describe('clearCache', () => {
