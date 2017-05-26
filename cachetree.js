@@ -193,15 +193,15 @@ export default class CacheTree {
   }
 
   _remove(path, cache, data) {
-    const cacheRef = cache;
+    const [ pathNode, ...pathRemaining ] = path;
 
     if (path.length === 1) {
-      return delete cacheRef[data[path[0]]]; // returns true if object property is deleted
+      return delete cache[data[pathNode]]; // returns true if object property is deleted
     } else if (
-      this._remove(path.slice(1), cache[data[path[0]]], data)
-      && isEmpty(cacheRef[data[path[0]]])
+      this._remove(pathRemaining, cache[data[pathNode]], data)
+      && isEmpty(cache[data[pathNode]])
     ) {
-      return delete cacheRef[data[path[0]]]; // clean up branch on the way out
+      return delete cache[data[pathNode]]; // clean up branch on the way out
     }
 
     return false;
