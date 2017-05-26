@@ -155,20 +155,22 @@ export default class CacheTree {
 
   // pseudo-diff (not true diff)
   _diff(path, cache, filter) {
+    const [ pathNode, ...pathRemaining ] = path;
+
     if (path.length === 0) {
       return filter;
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       // map over elements of the array for this field
-      const filterPieces = map(filter[path[0]], (param) => {
-        if (cache.hasOwnProperty(param)) {
-          const subDiff = this._diff(path.slice(1), cache[param], omit(filter, path[0]));
+      const filterPieces = map(filter[pathNode], (param) => {
+        if (has(cache, param)) {
+          const subDiff = this._diff(pathRemaining, cache[param], omit(filter, pathNode));
 
           if (isEmpty(subDiff)) return subDiff;
 
-          return assign({}, { [path[0]]: param }, subDiff);
+          return assign({}, { [pathNode]: param }, subDiff);
         }
 
-        return assign({}, { [path[0]]: [param] }, omit(filter, path[0]));
+        return assign({}, { [pathNode]: [param] }, omit(filter, pathNode));
       });
 
       return reduce(
@@ -179,12 +181,12 @@ export default class CacheTree {
         ),
         {}
       );
-    } else if (filter.hasOwnProperty(path[0]) && cache.hasOwnProperty(filter[path[0]])) {
-      const subDiff = this._diff(path.slice(1), cache[filter[path[0]]], omit(filter, path[0]));
+    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
+      const subDiff = this._diff(pathRemaining, cache[filter[pathNode]], omit(filter, pathNode));
 
       if (isEmpty(subDiff)) return subDiff;
 
-      return assign({}, { [path[0]]: filter[path[0]] }, subDiff);
+      return assign({}, { [pathNode]: filter[pathNode] }, subDiff);
     }
 
     return filter;
