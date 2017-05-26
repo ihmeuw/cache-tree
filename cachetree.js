@@ -138,13 +138,15 @@ export default class CacheTree {
   }
 
   _size(path, cache) {
+    const [ , ...pathRemaining ] = path;
+
     let count = 0;
 
     if (path.length === 0) {
       count += 1;
     } else {
       forEach(cache, (subCache) => {
-        count += this._size(path.slice(1), subCache);
+        count += this._size(pathRemaining, subCache);
       });
     }
 
