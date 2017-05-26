@@ -52,7 +52,7 @@ export default class CacheTree {
   // /////////////////
 
   _search(path, cache, filter) {
-    const [ pathNode, ...pathRemaining ] = path;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 0) {
       this._lru.refresh(cache);
@@ -63,13 +63,13 @@ export default class CacheTree {
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       forEach(filter[pathNode], (item) => {
         if (!has(cache, item)) {
-          console.log(`missing parameter: ${path[0]}: ${item}`);
+          console.error(`missing parameter: ${path[0]}: ${item}`);
         }
       });
 
       const trimmedCache = pick(cache, filter[pathNode]);
 
-      return flatMap(trimmedCache, (subCache) => this._search(pathRemaining, subCache, filter));
+      return flatMap(trimmedCache, subCache => this._search(pathRemaining, subCache, filter));
     } else if (has(filter, pathNode)) {
       if (!has(cache, filter[pathNode])) {
         return [];
@@ -79,11 +79,11 @@ export default class CacheTree {
     }
 
     // select all at this level
-    return flatMap(cache, (subCache) => this._search(pathRemaining, subCache, filter));
+    return flatMap(cache, subCache => this._search(pathRemaining, subCache, filter));
   }
 
   _insert(path, subCache, data) {
-    const [ pathNode, ...pathRemaining ] = path;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length && !has(data, pathNode)) {
       throw new Error('missing property in data');
@@ -121,14 +121,14 @@ export default class CacheTree {
   }
 
   _check(path, cache, filter) {
-    const [ pathNode, ...pathRemaining ] = path;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 0) {
       return true;
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       return every(
         filter[pathNode],
-        (param) => has(cache, param) && this._check(pathRemaining, cache[param], filter)
+        param => has(cache, param) && this._check(pathRemaining, cache[param], filter),
       );
     } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
       return this._check(pathRemaining, cache[filter[pathNode]], filter);
@@ -138,7 +138,7 @@ export default class CacheTree {
   }
 
   _size(path, cache) {
-    const [ , ...pathRemaining ] = path;
+    const [, ...pathRemaining] = path;
 
     let count = 0;
 
@@ -155,7 +155,7 @@ export default class CacheTree {
 
   // pseudo-diff (not true diff)
   _diff(path, cache, filter) {
-    const [ pathNode, ...pathRemaining ] = path;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 0) {
       return filter;
@@ -177,9 +177,9 @@ export default class CacheTree {
         filterPieces,
         (acc, partial) => mergeWith(
           acc, partial,
-          (accValue, partialValue) => compact(union(castArray(accValue), castArray(partialValue)))
+          (accValue, partialValue) => compact(union(castArray(accValue), castArray(partialValue))),
         ),
-        {}
+        {},
       );
     } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
       const subDiff = this._diff(pathRemaining, cache[filter[pathNode]], omit(filter, pathNode));
@@ -193,7 +193,7 @@ export default class CacheTree {
   }
 
   _remove(path, cache, data) {
-    const [ pathNode, ...pathRemaining ] = path;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 1) {
       return delete cache[data[pathNode]]; // returns true if object property is deleted
