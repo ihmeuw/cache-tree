@@ -121,15 +121,17 @@ export default class CacheTree {
   }
 
   _check(path, cache, filter) {
+    const [ pathNode, ...pathRemaining ] = path;
+
     if (path.length === 0) {
       return true;
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       return every(
-        filter[path[0]],
-        (param) => cache.hasOwnProperty(param) && this._check(path.slice(1), cache[param], filter)
+        filter[pathNode],
+        (param) => has(cache, param) && this._check(pathRemaining, cache[param], filter)
       );
-    } else if (filter.hasOwnProperty(path[0]) && cache.hasOwnProperty(filter[path[0]])) {
-      return this._check(path.slice(1), cache[filter[path[0]]], filter);
+    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
+      return this._check(pathRemaining, cache[filter[pathNode]], filter);
     }
 
     return false;
