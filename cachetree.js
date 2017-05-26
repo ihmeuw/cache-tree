@@ -82,17 +82,19 @@ export default class CacheTree {
     return flatMap(cache, (subCache) => this._search(pathRemaining, subCache, filter));
   }
 
-  _insert(path, cache, data) {
-    if (path.length && !data.hasOwnProperty(path[0])) {
+  _insert(path, subCache, data) {
+    const [ pathNode, ...pathRemaining ] = path;
+
+    if (path.length && !has(data, pathNode)) {
       throw new Error('missing property in data');
     }
-
-    const subCache = cache;
 
     if (path.length === 0) {
       if (!isEmpty(subCache)) { // data is already exists, do not replace
         return subCache;
       }
+
+      // otherwise, insert data
       const cleanData = assign({}, data);
 
       // _lru - insert into list
@@ -109,11 +111,11 @@ export default class CacheTree {
       return node;
     }
 
-    if (!subCache.hasOwnProperty(data[path[0]])) { // create property if it does not exist
-      subCache[data[path[0]]] = {};
+    if (!has(subCache, data[pathNode])) { // create property if it does not exist
+      subCache[data[pathNode]] = {};
     }
 
-    subCache[data[path[0]]] = this._insert(path.slice(1), subCache[data[path[0]]], data);
+    subCache[data[pathNode]] = this._insert(pathRemaining, subCache[data[pathNode]], data);
 
     return subCache;
   }
