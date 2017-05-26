@@ -6,6 +6,7 @@ import {
   every,
   flatMap,
   forEach,
+  has,
   isArray,
   isEmpty,
   map,
@@ -51,32 +52,34 @@ export default class CacheTree {
   // /////////////////
 
   _search(path, cache, filter) {
+    const [ pathNode, ...pathRemaining ] = path;
+
     if (path.length === 0) {
       this._lru.refresh(cache);
 
       const cleanData = assign({}, cache.key);
 
       return castArray(cleanData);
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
-      forEach(filter[path[0]], (item) => {
-        if (!cache.hasOwnProperty(item)) {
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
+      forEach(filter[pathNode], (item) => {
+        if (!has(cache, item)) {
           console.log(`missing parameter: ${path[0]}: ${item}`);
         }
       });
 
-      const trimmedCache = pick(cache, filter[path[0]]);
+      const trimmedCache = pick(cache, filter[pathNode]);
 
-      return flatMap(trimmedCache, (subCache) => this._search(path.slice(1), subCache, filter));
-    } else if (filter.hasOwnProperty(path[0])) {
-      if (!cache.hasOwnProperty(filter[path[0]])) {
+      return flatMap(trimmedCache, (subCache) => this._search(pathRemaining, subCache, filter));
+    } else if (has(filter, pathNode)) {
+      if (!has(cache, filter[pathNode])) {
         return [];
       }
 
-      return this._search(path.slice(1), cache[filter[path[0]]], filter);
+      return this._search(pathRemaining, cache[filter[pathNode]], filter);
     }
 
     // select all at this level
-    return flatMap(cache, (subCache) => this._search(path.slice(1), subCache, filter));
+    return flatMap(cache, (subCache) => this._search(pathRemaining, subCache, filter));
   }
 
   _insert(path, cache, data) {
