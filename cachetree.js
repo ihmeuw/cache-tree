@@ -63,7 +63,7 @@ export default class CacheTree {
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       forEach(filter[pathNode], (item) => {
         if (!has(cache, item)) {
-          console.error(`missing parameter: ${path[0]}: ${item}`);
+          console.error(`missing parameter: ${pathNode}: ${item}`);
         }
       });
 
