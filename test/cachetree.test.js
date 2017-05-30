@@ -50,10 +50,10 @@ describe('CacheTree', () => {
         .to.deep.equal(mockData[0]);
     });
 
-    it('returns data not referentially equal to input data', () => {
+    it('returns data referentially equal to input data', () => {
       const filter = { age: 1, sex: 1, estimate: 1, location: 345, year: 1990 };
       expect(cache.get(filter)[0])
-        .to.not.equal(mockData[0]);
+        .to.equal(mockData[0]);
     });
 
     // missing year field
