@@ -6,6 +6,7 @@ import {
   every,
   flatMap,
   forEach,
+  has,
   isArray,
   isEmpty,
   map,
@@ -51,49 +52,49 @@ export default class CacheTree {
   // /////////////////
 
   _search(path, cache, filter) {
+    const [pathNode, ...pathRemaining] = path;
+
     if (path.length === 0) {
       this._lru.refresh(cache);
 
-      const cleanData = assign({}, cache.key);
-
-      return castArray(cleanData);
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
-      forEach(filter[path[0]], (item) => {
-        if (!cache.hasOwnProperty(item)) {
-          console.log(`missing parameter: ${path[0]}: ${item}`);
+      return castArray(cache.key);
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
+      forEach(filter[pathNode], (item) => {
+        if (!has(cache, item)) {
+          console.error(`missing parameter: ${pathNode}: ${item}`);
         }
       });
 
-      const trimmedCache = pick(cache, filter[path[0]]);
+      const trimmedCache = pick(cache, filter[pathNode]);
 
-      return flatMap(trimmedCache, (subCache) => this._search(path.slice(1), subCache, filter));
-    } else if (filter.hasOwnProperty(path[0])) {
-      if (!cache.hasOwnProperty(filter[path[0]])) {
+      return flatMap(trimmedCache, subCache => this._search(pathRemaining, subCache, filter));
+    } else if (has(filter, pathNode)) {
+      if (!has(cache, filter[pathNode])) {
         return [];
       }
 
-      return this._search(path.slice(1), cache[filter[path[0]]], filter);
+      return this._search(pathRemaining, cache[filter[pathNode]], filter);
     }
 
     // select all at this level
-    return flatMap(cache, (subCache) => this._search(path.slice(1), subCache, filter));
+    return flatMap(cache, subCache => this._search(pathRemaining, subCache, filter));
   }
 
-  _insert(path, cache, data) {
-    if (path.length && !data.hasOwnProperty(path[0])) {
+  _insert(path, subCache, data) {
+    const [pathNode, ...pathRemaining] = path;
+
+    if (path.length && !has(data, pathNode)) {
       throw new Error('missing property in data');
     }
-
-    const subCache = cache;
 
     if (path.length === 0) {
       if (!isEmpty(subCache)) { // data is already exists, do not replace
         return subCache;
       }
-      const cleanData = assign({}, data);
 
+      // otherwise, insert data
       // _lru - insert into list
-      const node = new ListNode(cleanData);
+      const node = new ListNode(Object.freeze(data));
 
       this._lru.insert(node);
 
@@ -106,91 +107,91 @@ export default class CacheTree {
       return node;
     }
 
-    if (!subCache.hasOwnProperty(data[path[0]])) { // create property if it does not exist
-      subCache[data[path[0]]] = {};
+    if (!has(subCache, data[pathNode])) { // create property if it does not exist
+      subCache[data[pathNode]] = {};
     }
 
-    subCache[data[path[0]]] = this._insert(path.slice(1), subCache[data[path[0]]], data);
+    subCache[data[pathNode]] = this._insert(pathRemaining, subCache[data[pathNode]], data);
 
     return subCache;
   }
 
   _check(path, cache, filter) {
+    const [pathNode, ...pathRemaining] = path;
+
     if (path.length === 0) {
       return true;
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       return every(
-        filter[path[0]],
-        (param) => cache.hasOwnProperty(param) && this._check(path.slice(1), cache[param], filter)
+        filter[pathNode],
+        param => has(cache, param) && this._check(pathRemaining, cache[param], filter),
       );
-    } else if (filter.hasOwnProperty(path[0]) && cache.hasOwnProperty(filter[path[0]])) {
-      return this._check(path.slice(1), cache[filter[path[0]]], filter);
+    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
+      return this._check(pathRemaining, cache[filter[pathNode]], filter);
     }
 
     return false;
   }
 
   _size(path, cache) {
-    let count = 0;
+    const [, ...pathRemaining] = path;
 
     if (path.length === 0) {
-      count += 1;
-    } else {
-      forEach(cache, (subCache) => {
-        count += this._size(path.slice(1), subCache);
-      });
+      return 1;
     }
 
-    return count;
+    return reduce(cache, (acc, subCache) => acc + this._size(pathRemaining, subCache), 0);
   }
 
   // pseudo-diff (not true diff)
   _diff(path, cache, filter) {
+    const [pathNode, ...pathRemaining] = path;
+
     if (path.length === 0) {
       return filter;
-    } else if (filter.hasOwnProperty(path[0]) && isArray(filter[path[0]])) {
+    } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       // map over elements of the array for this field
-      const filterPieces = map(filter[path[0]], (param) => {
-        if (cache.hasOwnProperty(param)) {
-          const subDiff = this._diff(path.slice(1), cache[param], omit(filter, path[0]));
+      const filterPieces = map(filter[pathNode], (param) => {
+        if (has(cache, param)) {
+          const subDiff = this._diff(pathRemaining, cache[param], omit(filter, pathNode));
 
           if (isEmpty(subDiff)) return subDiff;
 
-          return assign({}, { [path[0]]: param }, subDiff);
+          return assign({}, { [pathNode]: param }, subDiff);
         }
 
-        return assign({}, { [path[0]]: [param] }, omit(filter, path[0]));
+        return assign({}, { [pathNode]: [param] }, omit(filter, pathNode));
       });
 
       return reduce(
         filterPieces,
         (acc, partial) => mergeWith(
           acc, partial,
-          (accValue, partialValue) => compact(union(castArray(accValue), castArray(partialValue)))
+          (accValue, partialValue) => compact(union(castArray(accValue), castArray(partialValue))),
         ),
-        {}
+        {},
       );
-    } else if (filter.hasOwnProperty(path[0]) && cache.hasOwnProperty(filter[path[0]])) {
-      const subDiff = this._diff(path.slice(1), cache[filter[path[0]]], omit(filter, path[0]));
+    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
+      const subDiff = this._diff(pathRemaining, cache[filter[pathNode]], omit(filter, pathNode));
 
       if (isEmpty(subDiff)) return subDiff;
 
-      return assign({}, { [path[0]]: filter[path[0]] }, subDiff);
+      return assign({}, { [pathNode]: filter[pathNode] }, subDiff);
     }
 
     return filter;
   }
 
   _remove(path, cache, data) {
-    const cacheRef = cache;
+    const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 1) {
-      return delete cacheRef[data[path[0]]]; // returns true if object property is deleted
+      return delete cache[data[pathNode]]; // returns true if object property is deleted
     } else if (
-      this._remove(path.slice(1), cache[data[path[0]]], data)
-      && isEmpty(cacheRef[data[path[0]]])
+      this._remove(pathRemaining, cache[data[pathNode]], data)
+      && isEmpty(cache[data[pathNode]])
     ) {
-      return delete cacheRef[data[path[0]]]; // clean up branch on the way out
+      return delete cache[data[pathNode]]; // clean up branch on the way out
     }
 
     return false;
