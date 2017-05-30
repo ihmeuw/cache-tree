@@ -140,17 +140,11 @@ export default class CacheTree {
   _size(path, cache) {
     const [, ...pathRemaining] = path;
 
-    let count = 0;
-
     if (path.length === 0) {
-      count += 1;
-    } else {
-      forEach(cache, (subCache) => {
-        count += this._size(pathRemaining, subCache);
-      });
+      return 1;
     }
 
-    return count;
+    return reduce(cache, (acc, subCache) => acc + this._size(pathRemaining, subCache), 0);
   }
 
   // pseudo-diff (not true diff)
