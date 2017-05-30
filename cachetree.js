@@ -57,9 +57,7 @@ export default class CacheTree {
     if (path.length === 0) {
       this._lru.refresh(cache);
 
-      const cleanData = assign({}, cache.key);
-
-      return castArray(cleanData);
+      return castArray(cache.key);
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       forEach(filter[pathNode], (item) => {
         if (!has(cache, item)) {
@@ -95,10 +93,8 @@ export default class CacheTree {
       }
 
       // otherwise, insert data
-      const cleanData = assign({}, data);
-
       // _lru - insert into list
-      const node = new ListNode(cleanData);
+      const node = new ListNode(Object.freeze(data));
 
       this._lru.insert(node);
 
