@@ -1,6 +1,6 @@
 {
   "name": "cache-tree",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A class for storing client-side data for reuse with an LRU algorithm.",
   "main": "lib/cachetree.js",
   "module": "es/cachetree.js",
