@@ -1,3 +1,10 @@
 {
-  "presets": ["env"]
+  "env": {
+    "commonjs": {
+      "presets": ["env"]
+    },
+    "es": {
+      "presets": [["env", { "modules": false }]]
+    }
+  }
 }

@@ -2,14 +2,28 @@
   "name": "cache-tree",
   "version": "0.1.0",
   "description": "A class for storing client-side data for reuse with an LRU algorithm.",
-  "main": "cachetree.js",
+  "main": "lib/cachetree.js",
+  "module": "es/cachetree.js",
+  "files": [
+    "es",
+    "lib",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
-    "test": "mocha --require babel-polyfill --compilers js:babel-register",
-    "lint": "./node_modules/.bin/eslint"
+    "build": "npm run transpile:commonjs && npm run transpile:es",
+    "lint": "$(npm bin)/eslint *.js",
+    "preversion": "npm run lint && npm run test",
+    "postversion": "git push && git push --tags",
+    "test": "BABEL_ENV=commonjs mocha --require babel-polyfill --compilers js:babel-register",
+    "transpile:commonjs": "BABEL_ENV=commonjs $(npm bin)/babel cachetree.js linkedlist.js --out-dir lib",
+    "transpile:es": "BABEL_ENV=es $(npm bin)/babel cachetree.js linkedlist.js --out-dir es",
+    "version": "npm run build && git add ."
   },
   "author": "Aaron C Keel",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.21.0",
     "babel-polyfill": "^6.20.0",
     "babel-preset-env": "^1.1.4",
