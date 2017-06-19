@@ -120,10 +120,10 @@ describe('CacheTree', () => {
     });
   });
 
-  describe('cloneCache', () => {
+  describe('clone', () => {
     const cache = new CacheTree(['sex', 'estimate', 'age', 'year', 'location']);
     cache.set(mockData);
-    const clone = cache.cloneCache();
+    const clone = cache.clone();
 
     it('will return a clone of the cache that is not referentially equal to the original', () => {
       expect(clone).to.not.equal(cache);

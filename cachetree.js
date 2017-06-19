@@ -235,8 +235,9 @@ export default class CacheTree {
    *
    * @return {Object|*|{}}
    */
-  cloneCache() {
-    return clone(this);
+  clone() {
+    const newCache = new CacheTree();
+    return assign(newCache, this);
   }
 
   /**
