@@ -43,7 +43,7 @@ Method | Arguments | Return | Description
 --- | :---: | :---: | ---
 `get` | filter[object] | array | Returns an array of data stored in the cache that satisfies the filter. Each data object is a new object.
 `set` | data[object] | none | Inserts a data object into the cache. The data is nested into the cache object by its keys and hierarchy provided in the constructor.
-`cloneCache` | none | object | Creates a new CacheTree object with the same cache object and linked list.
+`clone` | none | object | Creates a new CacheTree object with the same cache object and linked list.
 `has` | filter[object] | boolean | Returns `false` if cache is missing any part of the cartesian product of the parameters provided in the filter. Returns `true` otherwise.
 `getDiff` | paramFilter[object] | object | Returns an object similar to `paramFilter`. The returned object describes the smallest cartesian product of parameters needed to fill in missing data for `paramFilter`.
 `clearCache` | none | none | Replaces the cache with an empty object and creates a new linked list.
