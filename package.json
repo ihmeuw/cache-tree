@@ -15,7 +15,7 @@
     "build": "npm run transpile:commonjs && npm run transpile:es",
     "clean": "rm -rf es lib",
     "lint": "$(npm bin)/eslint *.js",
-    "preversion": "npm run lint && npm run test",
+    "preversion": "npm run clean && npm run lint && npm run test",
     "postversion": "git push && git push --tags",
     "test": "BABEL_ENV=commonjs mocha --require babel-polyfill --compilers js:babel-register",
     "transpile:commonjs": "BABEL_ENV=commonjs $(npm bin)/babel cachetree.js linkedlist.js --out-dir lib",
