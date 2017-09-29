@@ -58,11 +58,13 @@ export default class CacheTree {
 
       return castArray(cache.key);
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
-      forEach(filter[pathNode], (item) => {
-        if (!has(cache, item)) {
-          console.error(`missing parameter: ${pathNode}: ${item}`);
-        }
-      });
+      if (process.env.NODE_ENV === 'development') {
+        forEach(filter[pathNode], (item) => {
+          if (!has(cache, item)) {
+            console.error(`missing parameter: ${pathNode}: ${item}`);
+          }
+        });
+      }
 
       const trimmedCache = pick(cache, filter[pathNode]);
 
