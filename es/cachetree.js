@@ -61,11 +61,13 @@ var CacheTree = function () {
 
         return castArray(cache.key);
       } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
-        forEach(filter[pathNode], function (item) {
-          if (!has(cache, item)) {
-            console.error('missing parameter: ' + pathNode + ': ' + item);
-          }
-        });
+        if (process.env.NODE_ENV === 'development') {
+          forEach(filter[pathNode], function (item) {
+            if (!has(cache, item)) {
+              console.error('missing parameter: ' + pathNode + ': ' + item);
+            }
+          });
+        }
 
         var trimmedCache = pick(cache, filter[pathNode]);
 
