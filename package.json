@@ -44,9 +44,5 @@
   },
   "dependencies": {
     "lodash": "^4.17.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "ssh://git@stash.ihme.washington.edu:7999/viz/cache-tree.git"
   }
 }
