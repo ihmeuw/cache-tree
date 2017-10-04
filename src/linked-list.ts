@@ -1,13 +1,12 @@
 import ListNode from './list-node';
-import Sentinel from './sentinel';
 
 export default class LinkedList<T> {
-  sentinel: Sentinel<T>;
+  sentinel: ListNode<T>;
   length: number;
   maxLength: number;
 
   constructor(maxLength: number = 100000) {
-    this.sentinel = new Sentinel(null);
+    this.sentinel = new ListNode(null);
 
     this.sentinel.next = this.sentinel;
     this.sentinel.prev = this.sentinel;
