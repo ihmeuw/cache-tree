@@ -2,47 +2,50 @@
   "name": "cache-tree",
   "version": "0.4.5",
   "description": "A class for storing client-side data for reuse with an LRU algorithm.",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build:all": "npm run build:commonjs && npm run build:es",
+    "build:commonjs": "NODE_ENV=production tsc -p ./tsconfig.commonjs.json",
+    "build:es": "NODE_ENV=production tsc -p ./tsconfig.es.json",
+    "coverage": "$(npm bin)/nyc npm test",
+    "lint": "$(npm bin)/tslint -p ./tsconfig.json",
+    "preversion": "npm run lint && npm run test",
+    "postversion": "git push && git push --tags",
+    "test": "$(npm bin)/_mocha --compilers ts:ts-node/register",
+    "version": "npm run build:all && git add ."
+  },
+  "author": "Aaron C Keel <akeel@uw.edu>",
+  "license": "MIT",
+  "files": [
+    "es",
+    "lib",
+    "README.md",
+    "package.json",
+    "index.d.ts"
+  ],
+  "repository": "https://github.com/ihmeuw/cache-tree.git",
   "keywords": [
     "cache",
     "lru"
   ],
-  "main": "lib/cachetree.js",
-  "module": "es/cachetree.js",
-  "files": [
-    "es",
-    "lib",
-    "package.json",
-    "README.md"
-  ],
-  "repository": "https://github.com/ihmeuw/cache-tree.git",
-  "scripts": {
-    "build": "npm run transpile:commonjs && npm run transpile:es",
-    "clean": "rm -rf es lib",
-    "lint": "$(npm bin)/eslint *.js",
-    "preversion": "npm run clean && npm run lint && npm run test",
-    "postversion": "git push && git push --tags",
-    "test": "BABEL_ENV=commonjs mocha --require babel-polyfill --compilers js:babel-register",
-    "transpile:commonjs": "BABEL_ENV=commonjs $(npm bin)/babel cachetree.js linkedlist.js --out-dir lib",
-    "transpile:es": "BABEL_ENV=es $(npm bin)/babel cachetree.js linkedlist.js --out-dir es",
-    "version": "npm run build && git add ."
-  },
-  "author": "Aaron C Keel <akeel@uw.edu>",
   "contributors": [
     "Gabe Medrash <gmedrash@gmail.com>"
   ],
-  "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-core": "^6.21.0",
-    "babel-polyfill": "^6.20.0",
-    "babel-preset-env": "^1.1.4",
-    "chai": "^3.5.0",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.2.0",
-    "eslint-plugin-import": "^2.3.0",
-    "mocha": "^3.2.0"
+    "@types/chai": "^4.0.1",
+    "@types/mocha": "^2.2.41",
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.3",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.2"
   },
   "dependencies": {
-    "lodash": "^4.17.3"
+    "@types/lodash": "^4.14.71",
+    "lodash": "^4.17.4"
   }
 }
