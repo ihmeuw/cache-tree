@@ -1,6 +1,9 @@
+/* tslint:disable no-unused-expression */
+
 import { expect } from 'chai';
 
 import LinkedList from '../src/linked-list';
+import ListNode from '../src/list-node';
 
 interface IData {
   age: number;
@@ -37,6 +40,38 @@ const mockDatum3 = {
   sex: 1,
   year: 2010,
 };
+
+describe('ListNode', () => {
+  describe('properties', () => {
+    const listNode = new ListNode<IData>(mockDatum1);
+
+    it('stores a reference to data in key', () => {
+      expect(listNode.key).to.equal(mockDatum1);
+    });
+
+    it('stores a reference to other list nodes in prev and next', () => {
+      listNode.next = new ListNode<IData>(mockDatum2);
+      listNode.prev = new ListNode<IData>(mockDatum3);
+
+      expect(listNode.next.key).to.equal(mockDatum2);
+      expect(listNode.prev.key).to.equal(mockDatum3);
+    });
+  });
+
+  describe('clear', () => {
+    const listNode = new ListNode<IData>(mockDatum1);
+    listNode.next = new ListNode<IData>(mockDatum2);
+    listNode.prev = new ListNode<IData>(mockDatum3);
+
+    it('removes all properties and references to other objects', () => {
+      listNode.clear();
+
+      expect(listNode.key).to.be.undefined;
+      expect(listNode.next).to.be.undefined;
+      expect(listNode.prev).to.be.undefined;
+    });
+  });
+});
 
 describe('LinkedList', () => {
   describe('insert', () => {
