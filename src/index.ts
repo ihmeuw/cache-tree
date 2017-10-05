@@ -44,7 +44,7 @@ import ListNode from './list-node';
  */
 
 type Filter<T> = {
-  [K in keyof T]: number | number[];
+  [K in keyof T]?: number | number[];
 };
 
 type Cache<T> = ListNode<T> | {
@@ -58,10 +58,10 @@ declare const process: {
 };
 
 export default class CacheTree<T, K extends keyof T> {
-  private hierarchy: K[];
   private cacheTree: Dictionary<Cache<T>>;
-  private maxSize: number;
+  private hierarchy: K[];
   private lru: LinkedList<T>;
+  private maxSize: number;
 
   constructor(hierarchy: K[], maxSize: number = 1000000) {
     this.hierarchy = hierarchy;
@@ -90,17 +90,31 @@ export default class CacheTree<T, K extends keyof T> {
 
   /**
    *
+   * Returns a frozen object copy of cacheTree property
+   *
+   * @return {object}
+   */
+  getCachedDataTree(): Cache<T> {
+    return Object.freeze(assign({}, this.cacheTree));
+  }
+
+  /**
+   *
    * Sets data into the cache.
    *
    * @param {object} data
    */
-  insert(data: T | T[]): Cache<T> {
+  insert(data: T | T[]): CacheTree<T, keyof T> {
     if (isArray(data)) {
-      return reduce(data, (cache, datum) => {
-        return this._insert(this.hierarchy, cache, datum);
-      }, this.cacheTree);
+      forEach(data, (datum) => {
+        this._insert(this.hierarchy, this.cacheTree, datum);
+      });
+
+      return this;
     } else {
-      return this._insert(this.hierarchy, this.cacheTree, data);
+      this._insert(this.hierarchy, this.cacheTree, data);
+
+      return this;
     }
   }
 
@@ -178,7 +192,7 @@ export default class CacheTree<T, K extends keyof T> {
       return castArray(cache.key);
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       if (process.env.NODE_ENV === 'development') {
-        forEach(filter[pathNode], (item) => {
+        forEach(getValue(filter, pathNode), (item) => {
           if (!has(cache, item)) {
             /* tslint:disable no-console */
             console.error(`missing parameter: ${pathNode}: ${item}`);
@@ -187,11 +201,11 @@ export default class CacheTree<T, K extends keyof T> {
         });
       }
 
-      const cacheBranches = pick(cache, filter[pathNode]);
+      const cacheBranches = pick(cache, getValue(filter, pathNode));
 
       return flatMap(cacheBranches, (cacheBranch) => this._get(pathRemaining, cacheBranch, filter));
-    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
-      return this._get(pathRemaining, getValue(cache, filter[pathNode]), filter);
+    } else if (has(filter, pathNode) && has(cache, getValue(filter, pathNode))) {
+      return this._get(pathRemaining, getValue(cache, getValue(filter, pathNode)), filter);
     }
 
     // select all at this level
@@ -206,7 +220,7 @@ export default class CacheTree<T, K extends keyof T> {
     }
 
     if (path.length === 0) {
-      if (isEmpty(cache)) { // data is already exists, do not replace
+      if (isEmpty(cache)) {
         // lru - insert into list
         this.lru.insert(data);
 
@@ -217,7 +231,7 @@ export default class CacheTree<T, K extends keyof T> {
         }
       }
 
-      return cache;
+      return this.lru.sentinel.next;
     }
 
     if (!has(cache, toString(data[pathNode]))) {
@@ -238,15 +252,15 @@ export default class CacheTree<T, K extends keyof T> {
       return true;
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       return every(
-        castArray(filter[pathNode]),
+        castArray(getValue(filter, pathNode)),
         (param) => {
           const cacheBranch: Cache<T> = getValue(cache, param);
 
           return has(cache, param) && this._has(pathRemaining, cacheBranch, filter);
         }
       );
-    } else if (has(filter, pathNode) && has(cache, filter[pathNode])) {
-      const cacheBranch: Cache<T> = getValue(cache, filter[pathNode]);
+    } else if (has(filter, pathNode) && has(cache, getValue(filter, pathNode))) {
+      const cacheBranch: Cache<T> = getValue(cache, getValue(filter, pathNode));
 
       return this._has(pathRemaining, cacheBranch, filter);
     }
@@ -272,7 +286,7 @@ export default class CacheTree<T, K extends keyof T> {
       return filter;
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       // map over elements of the array for this field
-      const filterPieces = map(filter[pathNode], (param: number) => {
+      const filterPieces = map(getValue(filter, pathNode), (param: number) => {
         if (has(cache, param)) {
           const cacheBranch: Cache<T> = getValue(cache, param);
           const subDiff = this._diff(pathRemaining, cacheBranch, omit(filter, pathNode));
