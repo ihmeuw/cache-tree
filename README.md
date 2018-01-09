@@ -48,3 +48,4 @@ Method | Arguments | Return | Description
 `getDiff` | paramFilter[object] | object | Returns an object similar to `paramFilter`. The returned object describes the smallest cartesian product of parameters needed to fill in missing data for `paramFilter`.
 `clearCache` | none | none | Replaces the cache with an empty object and creates a new linked list.
 `getSize` | none | number | Returns the number of data objects stored in the cache.
+`extract` | filter[object] | array | Like get, but removes returned data from cache. 
