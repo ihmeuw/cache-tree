@@ -51,6 +51,17 @@ export class LinkedList {
     this.head.next = nodeRef;
   }
 
+  // delete node
+  delete(node) {
+    const nodeRef = node;
+
+    nodeRef.next.prev = nodeRef.prev;
+    nodeRef.prev.next = nodeRef.next;
+    nodeRef.clear();
+
+    this.length -= 1;
+  }
+
   // remove node before tail
   evict() {
     const evicted = this.tail.prev;
