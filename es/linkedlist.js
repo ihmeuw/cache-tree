@@ -77,6 +77,20 @@ export var LinkedList = function () {
       this.head.next = nodeRef;
     }
 
+    // delete node
+
+  }, {
+    key: 'delete',
+    value: function _delete(node) {
+      var nodeRef = node;
+
+      nodeRef.next.prev = nodeRef.prev;
+      nodeRef.prev.next = nodeRef.next;
+      nodeRef.clear();
+
+      this.length -= 1;
+    }
+
     // remove node before tail
 
   }, {

@@ -164,11 +164,51 @@ describe('CacheTree', () => {
 
     it('will return 0 if cache is empty', () => {
       expect(cache.getSize()).to.equal(0);
+      expect(cache._lru.traverseSize()).to.equal(0);
     });
 
     it('will return the number of available data objects in cache', () => {
       cache.set(mockData);
       expect(cache.getSize()).to.equal(mockData.length);
+      expect(cache._lru.traverseSize()).to.equal(mockData.length);
+    });
+  });
+
+  describe('extract', () => {
+
+    it('returns data given a path and filter and removes it from the cache', () => {
+      const cache = new CacheTree(['sex', 'estimate', 'age']);
+      cache.set([mockDatum1, mockDatum2, mockDatum3, mockDatum4, mockDatum5]);
+      const prevSize = cache.getSize();
+      const filter = { age: 1, sex: 1, estimate: 1 };
+      expect(cache.extract(filter)[0])
+        .to.deep.equal(mockDatum1);
+
+      expect(cache.has(filter)).to.equal(false);
+      expect(cache.getSize()).to.equal(prevSize - 1);
+    });
+
+    it('removes the specified data from the linked list LRU', () => {
+      const cache = new CacheTree(['sex', 'estimate', 'age']);
+      cache.set([mockDatum1, mockDatum2, mockDatum3, mockDatum4, mockDatum5]);
+      const filter = {
+        sex: 1,
+        estimate: 2,
+        age: [1, 2],
+      };
+      const extracted = cache.extract(filter);
+      expect(extracted).to.have.lengthOf(2);
+      extracted.forEach((datum) => {
+        if (datum.value === 3) {
+          expect(datum).to.deep.equal(mockDatum3);
+        } else {
+          expect(datum).to.deep.equal(mockDatum2);
+        }
+      });
+
+      expect(cache._lru.traverseSize()).to.equal(3);
+      expect(cache.has({ sex: 1, estimate: 2, age: 1 })).to.equal(false);
+      expect(cache.has({ sex: 1, estimate: 2, age: 2 })).to.equal(false);
     });
   });
 
@@ -243,10 +283,13 @@ describe('CacheTree', () => {
 
     it('will hold only "maxSize" number of data', () => {
       expect(cache.getSize()).to.equal(4);
+      expect(cache._lru.traverseSize()).to.equal(4);
       cache.set(mockData[4]);
       expect(cache.getSize()).to.equal(5);
+      expect(cache._lru.traverseSize()).to.equal(5);
       cache.set(mockData[5]);
       expect(cache.getSize()).to.equal(5);
+      expect(cache._lru.traverseSize()).to.equal(5);
     });
 
     it('will remove older data', () => {

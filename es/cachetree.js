@@ -49,7 +49,7 @@ var CacheTree = function () {
 
   _createClass(CacheTree, [{
     key: '_search',
-    value: function _search(path, cache, filter) {
+    value: function _search(path, cache, filter, extract) {
       var _this = this;
 
       var _path = _toArray(path),
@@ -57,9 +57,15 @@ var CacheTree = function () {
           pathRemaining = _path.slice(1);
 
       if (path.length === 0) {
-        this._lru.refresh(cache);
+        var datum = cache.key;
+        if (extract) {
+          this._remove(this._structure, this._cache, cache.key);
+          this._lru.delete(cache);
+        } else {
+          this._lru.refresh(cache);
+        }
 
-        return castArray(cache.key);
+        return castArray(datum);
       } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
         if (process.env.NODE_ENV === 'development') {
           forEach(filter[pathNode], function (item) {
@@ -72,19 +78,19 @@ var CacheTree = function () {
         var trimmedCache = pick(cache, filter[pathNode]);
 
         return flatMap(trimmedCache, function (subCache) {
-          return _this._search(pathRemaining, subCache, filter);
+          return _this._search(pathRemaining, subCache, filter, extract);
         });
       } else if (has(filter, pathNode)) {
         if (!has(cache, filter[pathNode])) {
           return [];
         }
 
-        return this._search(pathRemaining, cache[filter[pathNode]], filter);
+        return this._search(pathRemaining, cache[filter[pathNode]], filter, extract);
       }
 
       // select all at this level
       return flatMap(cache, function (subCache) {
-        return _this._search(pathRemaining, subCache, filter);
+        return _this._search(pathRemaining, subCache, filter, extract);
       });
     }
   }, {
@@ -292,6 +298,21 @@ var CacheTree = function () {
     key: 'has',
     value: function has(filter) {
       return this._check(this._structure, this._cache, filter);
+    }
+
+    /**
+     *
+     * Like `get`, retrieves new copies of data from cache that pass through the filter,
+     * but also removes the data from the cache and LRU list.
+     *
+     * @param {object} filter
+     * @return {Array}
+     */
+
+  }, {
+    key: 'extract',
+    value: function extract(filter) {
+      return this._search(this._structure, this._cache, filter, true);
     }
 
     /**

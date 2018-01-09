@@ -50,13 +50,19 @@ export default class CacheTree {
   // "private methods"
   // /////////////////
 
-  _search(path, cache, filter) {
+  _search(path, cache, filter, extract) {
     const [pathNode, ...pathRemaining] = path;
 
     if (path.length === 0) {
-      this._lru.refresh(cache);
+      const datum = cache.key;
+      if (extract) {
+        this._remove(this._structure, this._cache, cache.key);
+        this._lru.delete(cache);
+      } else {
+        this._lru.refresh(cache);
+      }
 
-      return castArray(cache.key);
+      return castArray(datum);
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
       if (process.env.NODE_ENV === 'development') {
         forEach(filter[pathNode], (item) => {
@@ -68,17 +74,20 @@ export default class CacheTree {
 
       const trimmedCache = pick(cache, filter[pathNode]);
 
-      return flatMap(trimmedCache, subCache => this._search(pathRemaining, subCache, filter));
+      return flatMap(
+        trimmedCache,
+        subCache => this._search(pathRemaining, subCache, filter, extract),
+      );
     } else if (has(filter, pathNode)) {
       if (!has(cache, filter[pathNode])) {
         return [];
       }
 
-      return this._search(pathRemaining, cache[filter[pathNode]], filter);
+      return this._search(pathRemaining, cache[filter[pathNode]], filter, extract);
     }
 
     // select all at this level
-    return flatMap(cache, subCache => this._search(pathRemaining, subCache, filter));
+    return flatMap(cache, subCache => this._search(pathRemaining, subCache, filter, extract));
   }
 
   _insert(path, subCache, data) {
@@ -252,6 +261,18 @@ export default class CacheTree {
    */
   has(filter) {
     return this._check(this._structure, this._cache, filter);
+  }
+
+  /**
+   *
+   * Like `get`, retrieves new copies of data from cache that pass through the filter,
+   * but also removes the data from the cache and LRU list.
+   *
+   * @param {object} filter
+   * @return {Array}
+   */
+  extract(filter) {
+    return this._search(this._structure, this._cache, filter, true);
   }
 
   /**
