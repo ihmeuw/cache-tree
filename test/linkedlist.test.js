@@ -75,6 +75,24 @@ describe('LinkedList', () => {
     });
   });
 
+  describe('delete', () => {
+    const list = new LinkedList();
+    const node_a = new ListNode();
+    const node_b = new ListNode();
+    const node_c = new ListNode();
+    list.insert(node_a);
+    list.insert(node_b);
+    list.insert(node_c);
+
+    it('will delete a node from the linked list', () => {
+      list.delete(node_b);
+
+      expect(list.traverseSize()).to.equal(2);
+      expect(list.head.next).to.equal(node_c);
+      expect(list.head.next.next).to.equal(node_a);
+    });
+  });
+
   describe('evict', () => {
     const list = new LinkedList();
     const node_a = new ListNode();
