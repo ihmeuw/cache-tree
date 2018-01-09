@@ -296,6 +296,28 @@ var CacheTree = function () {
 
     /**
      *
+     * Like `get`, retrieves new copies of data from cache that pass through the filter,
+     * but also removes the data from the cache and LRU list.
+     *
+     * @param {object} filter
+     * @return {Array}
+     */
+
+  }, {
+    key: 'extract',
+    value: function extract(filter) {
+      var _this6 = this;
+
+      var dataToBeExtracted = this._search(this._structure, this._cache, filter);
+      forEach(dataToBeExtracted, function (datum) {
+        _this6._remove(_this6._structure, _this6._cache, datum);
+      });
+
+      return dataToBeExtracted;
+    }
+
+    /**
+     *
      * Checks cache against filter to return a parameters object of data that is missed.
      *
      * @param {object} paramFilter

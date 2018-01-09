@@ -172,6 +172,21 @@ describe('CacheTree', () => {
     });
   });
 
+  describe('extract', () => {
+    const cache = new CacheTree(['sex', 'estimate', 'age', 'year', 'location']);
+    cache.set(mockData);
+
+    it('returns data given a path and filter and removes it from the cache', () => {
+      const prevSize = cache.getSize();
+      const filter = { age: 1, sex: 1, estimate: 1, location: 345, year: 1990 };
+      expect(cache.extract(filter)[0])
+        .to.deep.equal(mockData[0]);
+
+      expect(cache.has(filter)).to.equal(false);
+      expect(cache.getSize()).to.equal(prevSize - 1);
+    });
+  });
+
   describe('getDiff', () => {
     const cache = new CacheTree(['sex', 'estimate', 'age']);
     cache.set([mockDatum1, mockDatum2, mockDatum3, mockDatum4, mockDatum5]);

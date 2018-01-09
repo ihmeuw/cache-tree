@@ -256,6 +256,24 @@ export default class CacheTree {
 
   /**
    *
+   * Like `get`, retrieves new copies of data from cache that pass through the filter,
+   * but also removes the data from the cache and LRU list.
+   *
+   * @param {object} filter
+   * @return {Array}
+   */
+
+  extract(filter) {
+    const dataToBeExtracted = this._search(this._structure, this._cache, filter);
+    forEach(dataToBeExtracted, (datum) => {
+      this._remove(this._structure, this._cache, datum);
+    });
+
+    return dataToBeExtracted;
+  }
+
+  /**
+   *
    * Checks cache against filter to return a parameters object of data that is missed.
    *
    * @param {object} paramFilter
