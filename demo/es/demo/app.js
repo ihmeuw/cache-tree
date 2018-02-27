@@ -10,6 +10,7 @@ import CacheTree from '../cachetree.js';
 import { dataGen } from './data-gen.js';
 
 var dataProps = ['foo', 'bar', 'baz'];
+var bigDataProps = ['one', 'two', 'three', 'four', 'five', 'six'];
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -19,16 +20,16 @@ var App = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-    _this.cache = new CacheTree(props.dataProps, 343000);
-
     _this.state = {
-      cache: _this.cache,
+      cache: new CacheTree(props.dataProps, 125),
       data: [],
       diff: {},
-      hasData: "? ?"
+      hasData: "? ?",
+      bigCache: new CacheTree(props.bigDataProps)
     };
 
     _this.addData = _this.addData.bind(_this);
+    _this.addBigData = _this.addBigData.bind(_this);
     _this.getDiff = _this.getDiff.bind(_this);
     _this.getData = _this.getData.bind(_this);
     _this.hasData = _this.hasData.bind(_this);
@@ -44,10 +45,26 @@ var App = function (_React$Component) {
 
       var data = dataGen({ foo: fooData, bar: barData, baz: bazData });
 
-      this.cache.set(data);
+      this.state.cache.set(data);
 
       this.setState({
-        cache: this.cache.clone()
+        cache: this.state.cache.clone()
+      });
+    }
+  }, {
+    key: 'addBigData',
+    value: function addBigData() {
+      var params = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+      var filter = this.props.bigDataProps.reduce(function (acc, prop) {
+        acc[prop] = params;
+        return acc;
+      }, {});
+
+      var data = dataGen(filter);
+      this.state.bigCache.set(data);
+
+      this.setState({
+        bigCache: this.state.bigCache.clone()
       });
     }
   }, {
@@ -57,7 +74,7 @@ var App = function (_React$Component) {
       var barData = this.barRef.value.split(/\s*;\s*/);
       var bazData = this.bazRef.value.split(/\s*;\s*/);
 
-      var data = this.cache.get({ foo: fooData, bar: barData, baz: bazData });
+      var data = this.state.cache.get({ foo: fooData, bar: barData, baz: bazData });
 
       this.setState({
         data: data
@@ -70,7 +87,7 @@ var App = function (_React$Component) {
       var barData = this.barRef.value.split(/\s*;\s*/);
       var bazData = this.bazRef.value.split(/\s*;\s*/);
 
-      var diff = this.cache.getDiff({ foo: fooData, bar: barData, baz: bazData });
+      var diff = this.state.cache.getDiff({ foo: fooData, bar: barData, baz: bazData });
 
       this.setState({
         diff: diff
@@ -83,16 +100,42 @@ var App = function (_React$Component) {
       var barData = this.barRef.value.split(/\s*;\s*/);
       var bazData = this.bazRef.value.split(/\s*;\s*/);
 
-      var hasData = this.cache.has({ foo: fooData, bar: barData, baz: bazData });
+      var hasData = this.state.cache.has({ foo: fooData, bar: barData, baz: bazData });
 
       this.setState({
-        hasData: hasData ? 'tru' : 'flase'
+        hasData: hasData ? 'tru' : 'false'
+      });
+    }
+  }, {
+    key: 'showData',
+    value: function showData() {
+      return this.state.data.map(function (datum, i) {
+        return React.createElement(
+          'div',
+          { key: i },
+          JSON.stringify(datum)
+        );
+      });
+    }
+  }, {
+    key: 'showDiff',
+    value: function showDiff() {
+      var _this2 = this;
+
+      var keys = Object.keys(this.state.diff);
+
+      return keys.map(function (key, i) {
+        return React.createElement(
+          'div',
+          { key: i },
+          key + ': ' + JSON.stringify(_this2.state.diff[key])
+        );
       });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       return React.createElement(
         'div',
@@ -108,7 +151,7 @@ var App = function (_React$Component) {
           'foo:',
           React.createElement('input', {
             ref: function ref(input) {
-              _this2.fooRef = input;
+              _this3.fooRef = input;
             },
             type: 'text'
           })
@@ -119,7 +162,7 @@ var App = function (_React$Component) {
           'bar:',
           React.createElement('input', {
             ref: function ref(input) {
-              _this2.barRef = input;
+              _this3.barRef = input;
             },
             type: 'text'
           })
@@ -130,78 +173,116 @@ var App = function (_React$Component) {
           'baz:',
           React.createElement('input', {
             ref: function ref(input) {
-              _this2.bazRef = input;
+              _this3.bazRef = input;
             },
             type: 'text'
           })
         ),
         React.createElement(
           'div',
-          null,
+          { className: 'things' },
           React.createElement(
-            'button',
-            {
-              onClick: this.addData
-            },
-            'Add Data'
+            'div',
+            null,
+            React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'button',
+                {
+                  onClick: this.addData
+                },
+                'Add Data'
+              )
+            ),
+            'cache size: ',
+            this.state.cache.getSize()
+          ),
+          React.createElement(
+            'div',
+            null,
+            React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'button',
+                {
+                  onClick: this.getData
+                },
+                'Get Data'
+              )
+            ),
+            React.createElement(
+              'div',
+              null,
+              'data:'
+            ),
+            this.showData()
+          ),
+          React.createElement(
+            'div',
+            null,
+            React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'button',
+                {
+                  onClick: this.hasData
+                },
+                'Has Data?'
+              )
+            ),
+            'I has data? ',
+            this.state.hasData
+          ),
+          React.createElement(
+            'div',
+            null,
+            React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'button',
+                {
+                  onClick: this.getDiff
+                },
+                'Get Diff'
+              )
+            ),
+            React.createElement(
+              'div',
+              null,
+              'diff:'
+            ),
+            this.showDiff()
           )
         ),
         React.createElement(
-          'div',
+          'h2',
           null,
+          'Big Cache'
+        ),
+        React.createElement(
+          'div',
+          { className: 'things' },
           React.createElement(
-            'button',
-            {
-              onClick: this.getData
-            },
-            'Get Data'
+            'div',
+            null,
+            React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'button',
+                {
+                  onClick: this.addBigData
+                },
+                'Add Big Data'
+              )
+            ),
+            'big cache size: ',
+            this.state.bigCache.getSize()
           )
-        ),
-        React.createElement(
-          'div',
-          null,
-          React.createElement(
-            'button',
-            {
-              onClick: this.hasData
-            },
-            'Has Data?'
-          )
-        ),
-        React.createElement(
-          'div',
-          null,
-          React.createElement(
-            'button',
-            {
-              onClick: this.getDiff
-            },
-            'Get Diff'
-          )
-        ),
-        React.createElement(
-          'div',
-          null,
-          'cache size: ',
-          this.state.cache.getSize()
-        ),
-        React.createElement(
-          'div',
-          null,
-          'data: ',
-          JSON.stringify(this.state.data)
-        ),
-        React.createElement(
-          'div',
-          null,
-          'I has data? ',
-          this.state.hasData
-        ),
-        React.createElement(
-          'div',
-          null,
-          'diff: ',
-          JSON.stringify(this.state.diff)
         )
       );
     }
@@ -211,5 +292,6 @@ var App = function (_React$Component) {
 }(React.Component);
 
 ReactDOM.render(React.createElement(App, {
-  dataProps: dataProps
+  dataProps: dataProps,
+  bigDataProps: bigDataProps
 }), document.getElementById('page'));

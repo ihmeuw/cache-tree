@@ -1,0 +1,12 @@
+#page {
+    font-size: 1.5em;
+    font-family: "Courier New";
+}
+
+.things {
+    display: flex;
+}
+
+.things > div {
+    flex: 1 1 auto;
+}

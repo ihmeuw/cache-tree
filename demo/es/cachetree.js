@@ -6,7 +6,21 @@ function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-import { assign, castArray, compact, every, flatMap, forEach, has, isArray, isEmpty, map, mergeWith, omit, pick, reduce, union } from './lodash-es/lodash.js';
+import assign from './lodash-es/assign.js';
+import castArray from './lodash-es/castArray.js';
+import compact from './lodash-es/compact.js';
+import every from './lodash-es/every.js';
+import flatMap from './lodash-es/flatMap.js';
+import forEach from './lodash-es/forEach.js';
+import has from './lodash-es/has.js';
+import isArray from './lodash-es/isArray.js';
+import isEmpty from './lodash-es/isEmpty.js';
+import map from './lodash-es/map.js';
+import mergeWith from './lodash-es/mergeWith.js';
+import omit from './lodash-es/omit.js';
+import pick from './lodash-es/pick.js';
+import reduce from './lodash-es/reduce.js';
+import union  from './lodash-es/union.js';
 import { LinkedList, ListNode } from './linkedlist.js';
 
 /**

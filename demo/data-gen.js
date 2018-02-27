@@ -1,4 +1,4 @@
-import { flatMap } from '../lodash-es/lodash.js';
+import flatMap from '../lodash-es/flatMap.js';
 
 export function dataGen(filter) {
   function splitData(data, keys) {

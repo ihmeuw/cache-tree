@@ -2,7 +2,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-import { flatMap } from '../lodash-es/lodash.js';
+import flatMap from '../lodash-es/flatMap.js';
 
 export function dataGen(filter) {
   function splitData(data, keys) {
