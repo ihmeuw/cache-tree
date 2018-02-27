@@ -24,6 +24,7 @@
     "test": "BABEL_ENV=commonjs mocha --require babel-polyfill --compilers js:babel-register",
     "transpile:commonjs": "BABEL_ENV=commonjs $(npm bin)/babel cachetree.js linkedlist.js --out-dir lib",
     "transpile:es": "BABEL_ENV=es $(npm bin)/babel cachetree.js linkedlist.js --out-dir es",
+    "transpile:demo": "BABEL_ENV=demo $(npm bin)/babel ./demo/*.js --out-dir demo/es",
     "version": "npm run build && git add ."
   },
   "author": "Aaron C Keel <akeel@uw.edu>",
@@ -36,6 +37,7 @@
     "babel-core": "^6.21.0",
     "babel-polyfill": "^6.20.0",
     "babel-preset-env": "^1.1.4",
+    "babel-preset-react": "^6.24.1",
     "chai": "^3.5.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
@@ -43,6 +45,8 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "lodash": "^4.17.3"
+    "ihme-ui": "^0.29.2",
+    "lodash": "^4.17.3",
+    "lodash-es": "^4.17.5"
   }
 }

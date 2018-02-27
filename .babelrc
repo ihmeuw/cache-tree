@@ -5,6 +5,9 @@
     },
     "es": {
       "presets": [["env", { "modules": false }]]
+    },
+    "demo": {
+      "presets": [["env", { "modules": false }], "react"]
     }
   }
 }
