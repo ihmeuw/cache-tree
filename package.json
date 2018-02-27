@@ -25,7 +25,8 @@
     "transpile:commonjs": "BABEL_ENV=commonjs $(npm bin)/babel cachetree.js linkedlist.js --out-dir lib",
     "transpile:es": "BABEL_ENV=es $(npm bin)/babel cachetree.js linkedlist.js --out-dir es",
     "transpile:demo": "BABEL_ENV=demo $(npm bin)/babel ./demo/*.js --out-dir demo/es",
-    "version": "npm run build && git add ."
+    "version": "npm run build && git add .",
+    "demo:run": "http-server ./demo"
   },
   "author": "Aaron C Keel <akeel@uw.edu>",
   "contributors": [
