@@ -64,7 +64,7 @@ export default class CacheTree {
 
       return castArray(datum);
     } else if (has(filter, pathNode) && isArray(filter[pathNode])) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.CACHE_TREE_LOG_LEVEL === 'error') {
         forEach(filter[pathNode], (item) => {
           if (!has(cache, item)) {
             console.error(`missing parameter: ${pathNode}: ${item}`);

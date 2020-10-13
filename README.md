@@ -49,3 +49,7 @@ Method | Arguments | Return | Description
 `clearCache` | none | none | Replaces the cache with an empty object and creates a new linked list.
 `getSize` | none | number | Returns the number of data objects stored in the cache.
 `extract` | filter[object] | array | Like get, but removes returned data from cache. 
+
+## Environment variables
+
+To log console errors when the cache has missing parameters upon `get()` or `extract()` calls, set the `process.env.CACHE_TREE_LOG_LEVEL` variable in your node environment to 'error'.
