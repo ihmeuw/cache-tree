@@ -1,6 +1,9 @@
 {
-  "name": "cache-tree",
+  "name": "@ihmeuw/cache-tree",
   "version": "0.6.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "A class for storing client-side data for reuse with an LRU algorithm.",
   "keywords": [
     "cache",
@@ -14,7 +17,10 @@
     "package.json",
     "README.md"
   ],
-  "repository": "https://github.com/ihmeuw/cache-tree.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihmeuw/cache-tree.git"
+  },
   "scripts": {
     "build": "npm run transpile:commonjs && npm run transpile:es",
     "clean": "rm -rf es lib",
@@ -44,5 +50,13 @@
   },
   "dependencies": {
     "lodash": "^4.17.3"
+  },
+  "bugs": {
+    "url": "https://github.com/ihmeuw/cache-tree/issues"
+  },
+  "homepage": "https://github.com/ihmeuw/cache-tree#readme",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }
